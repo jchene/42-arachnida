@@ -4,6 +4,7 @@ export class SpiderCli {
     private readonly command: Command = new Command()
     public readonly opts: OptionValues
     public readonly args: string [] 
+    
     constructor() {
         this.command
             .option('-r, --recursive')
