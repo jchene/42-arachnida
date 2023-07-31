@@ -3,7 +3,7 @@ import { Command, OptionValues } from "commander";
 export class SpiderCli {
     private readonly command: Command = new Command()
     public readonly opts: OptionValues
-    public readonly args: string [] 
+    public readonly target: URL
     
     constructor() {
         this.command
@@ -13,7 +13,7 @@ export class SpiderCli {
             .argument('<url>')
             .parse(process.argv)
         this.opts = this.command.opts()
-        this.args = this.command.args
+        this.target = new URL(this.command.args[0])
         this.parseOptions()
     }
 

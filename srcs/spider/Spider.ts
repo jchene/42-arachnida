@@ -8,12 +8,13 @@ export class Spider {
     private readonly imageLinks: string[] = []
 
     constructor() {
-        console.log("Initialising Spider" + (this.cli.opts.recursive ? " - Recursive Mode - Depth:" + this.cli.opts.length : "") + " - Output Directory: " + this.cli.opts.path + " - Target: " + this.cli.args[0])
-        this.scrapper = new SpiderScrapper(this.cli.args[0], 0)
+        console.log("Initialising Spider" + (this.cli.opts.recursive ? " - Recursive Mode - Depth:" + this.cli.opts.length : "") + " - Output Directory: " + this.cli.opts.path + " - Target: " + this.cli.target)
+        this.linkList.push(this.cli.target.href)
+        this.scrapper = new SpiderScrapper(this.cli.target, this.cli.opts, 0)
     }
 
     public async scrap(){
-        await this.scrapper.scrap(this.linkList, this.imageLinks, (this.cli.opts.recursive ? this.cli.opts.length : 1))
+        await this.scrapper.scrap(this.linkList, this.imageLinks)
         console.log("All unique links:")
         console.log(this.linkList)
     }
