@@ -74,7 +74,7 @@ export class SpiderScrapper {
         for (let image of this.currentImages) {
             if (image) {
                 let scrappedImage: ScrappedImage = new ScrappedImage(image)
-                await scrappedImage.download()
+                await scrappedImage.download(this.opts.path)
             }
         }
         this.getObjects(data, 'a', 'href', this.currentLinks, arr.filteredLinks, arr.rawLinks)

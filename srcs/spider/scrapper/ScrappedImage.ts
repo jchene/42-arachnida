@@ -1,4 +1,5 @@
 import { ustring } from "../../utils/types"
+import * as col from '../../utils/colors'
 import { v4 as uuidv4 } from "uuid"
 import axios from 'axios'
 import fs from 'fs'
@@ -19,30 +20,29 @@ export class ScrappedImage {
             this.ext = tmp[tmp.length - 1]
         }
         catch { return }
-        console.log("name:", this.name, "ext:", this.ext, "\nURL:", this.url)
+        console.log("name:", this.name, "ext:", this.ext)
     }
 
-    public async download() {
-        const id = uuidv4()
-        try {
-            const response = await axios({
+    public async download(path: ustring) {
+        const id = uuidv4();
+        return new Promise((resolve, reject) => {
+            axios({
                 method: 'GET',
                 url: this.url?.href,
                 responseType: 'stream',
-            });
-            const writer = response.data.pipe(fs.createWriteStream(`./dist/${this.name}_${id}.${this.ext}`));
-            return new Promise((resolve, reject) => {
+            })
+            .then(response => {
+                const writer = response.data.pipe(fs.createWriteStream(`./${path}/${this.name}_${id}.${this.ext}`));
                 writer.on('finish', () => {
-                    console.log("Succesfully downloaded image", this.url?.hostname)
-                    resolve
+                    col.log(col.green, "Successfully downloaded image " + this.url?.pathname);
+                    resolve(null);
                 });
                 writer.on('error', reject);
+            })
+            .catch(e => {
+                col.log(col.red, "Couldn't download image: " + this.url);
+                reject(e);
             });
-        }
-        catch (e) {
-            if (this.url && this.url?.hostname)
-                console.log("Couldn't downlod image:", this.url)
-            console.log(e)
-        }
-    }
+        });
+    }    
 }
