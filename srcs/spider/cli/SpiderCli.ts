@@ -13,7 +13,12 @@ export class SpiderCli {
             .argument('<url>')
             .parse(process.argv)
         this.opts = this.command.opts()
-        this.target = new URL(this.command.args[0])
+        try { this.target = new URL(this.command.args[0]) }
+        catch (e) { 
+            console.error(e)
+            this.target = new URL('http://google.com')
+            return
+        }
         this.parseOptions()
     }
 

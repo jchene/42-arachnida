@@ -1,8 +1,8 @@
 import { Spider } from "./Spider"
 
-function main() {
+async function main() {
 	const spider = new Spider()
-    spider.scrap()
+    await spider.scrap()
 }
 
 main()

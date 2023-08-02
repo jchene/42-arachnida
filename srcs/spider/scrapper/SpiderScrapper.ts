@@ -1,8 +1,9 @@
 import { OptionValues } from 'commander'
 import cheerio from 'cheerio'
 import axios from 'axios'
-import { ScrappedImage } from './ScrappedImage';
-import { ustring } from '../../typedefs/types'
+import { ScrappedImage } from './ScrappedImage'
+import { ustring, globalScrappingArrays } from '../../utils/types'
+import * as col from '../../utils/colors'
 
 export class SpiderScrapper {
     private readonly targetURL: URL
@@ -19,32 +20,29 @@ export class SpiderScrapper {
     }
 
     private filterLink(rawLink: ustring): ustring {
-        if (rawLink?.startsWith('#'))
-            return undefined
-        else if (rawLink?.startsWith('http')) {
-            let url: URL = new URL(rawLink)
-            if (url.host != this.targetURL.host)
-                return undefined
-            else
-                return rawLink
+        if (rawLink?.startsWith('http')) {
+            let url: URL
+            try { url = new URL(rawLink) }
+            catch { return undefined }
+            if (url.host != this.targetURL.host) return undefined
+            else return rawLink
         }
-        else if (rawLink?.startsWith('//')) {
-            let completeLink: ustring = this.targetURL.protocol + rawLink
-            return this.filterLink(completeLink)
-        }
-        else if (rawLink?.startsWith('/')) {
-            return this.targetURL.origin + rawLink
-        }
+        else if (rawLink?.startsWith('//')) return this.filterLink(this.targetURL.protocol + rawLink)
+        else if (rawLink?.startsWith('/')) return this.targetURL.origin + rawLink
+        else return undefined
     }
 
-    private getObjects(data: cheerio.Root, beacon: string, attribute: string, currentArray: ustring[], globalArray: ustring[]) {
+    private getObjects(data: cheerio.Root, beacon: string, attribute: string, currentArray: ustring[], globalArray: ustring[], rawArray: ustring[]) {
         let i = 0
         data(beacon).each((index: number, element: cheerio.Element) => {
             let object = data(element).attr(attribute)
             if (object) {
+                if (rawArray.includes(object)) return
+                rawArray.push(object)
                 let filteredLink = this.filterLink(object)
                 if (filteredLink) {
                     if (!globalArray.includes(filteredLink)) {
+                        col.log(col.green, "Filtered:" + filteredLink)
                         globalArray.push(filteredLink)
                         currentArray.push(filteredLink)
                         i++
@@ -52,35 +50,42 @@ export class SpiderScrapper {
                 }
             }
         })
-        console.log(`\n${i} '${beacon}' objects were found`)
+        col.log(col.yellow, `${i} '${beacon}' objects were found`)
     }
 
-    public async scrap(linkList: ustring[], imageLinks: ustring[]) {
-        if (this.targetURL === undefined) return
-        let response
-        try { response = await axios.get(this.targetURL.toString()) }
-        catch {
-            console.log("Couldn't reach", this.targetURL.toString())
-            return
+
+    private async fetchPage(url: string): Promise<string | undefined> {
+        try {
+            const response = await axios.get(url, { validateStatus: (status) => status < 400 })
+            if (response.headers['content-type'].includes('application')) { return }
+            return response.data
         }
-        const data = cheerio.load(response.data)
-        console.log("\n-------------------------------------------------------------\nLink:", this.targetURL)
-        this.getObjects(data, 'img', 'src', this.currentImages, imageLinks)
+        catch { return }
+    }
+
+
+    public async scrap(arr: globalScrappingArrays) {
+        if (!this.targetURL) return
+        const responseData = await this.fetchPage(this.targetURL.href)
+        if (!responseData) return
+        const data = cheerio.load(responseData)
+        col.log(col.cyan, "\n\nLink:" + this.targetURL.href)
+        this.getObjects(data, 'img', 'src', this.currentImages, arr.imageLinks, arr.rawLinks)
         for (let image of this.currentImages) {
-            console.log("img:", image)
-            /*if (image) {
+            if (image) {
                 let scrappedImage: ScrappedImage = new ScrappedImage(image)
                 await scrappedImage.download()
-            }*/
+            }
         }
-        this.getObjects(data, 'a', 'href', this.currentLinks, linkList)
-        for (let link of this.currentLinks)
-            console.log("link:", link)
+        this.getObjects(data, 'a', 'href', this.currentLinks, arr.filteredLinks, arr.rawLinks)
         for (let link of this.currentLinks) {
             if (link) {
                 if (this.inceptionLevel + 1 > this.opts.length) { continue }
-                let childScrapper = new SpiderScrapper(new URL(link), this.opts, this.inceptionLevel)
-                await childScrapper.scrap(linkList, imageLinks)
+                try {
+                    let childScrapper = new SpiderScrapper(new URL(link), this.opts, this.inceptionLevel)
+                    await childScrapper.scrap(arr)
+                }
+                catch { return }
             }
         }
     }
