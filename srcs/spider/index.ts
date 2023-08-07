@@ -1,8 +1,15 @@
 import { Spider } from "./Spider"
+import * as col from '../utils/colors'
 
 async function main() {
-	const spider = new Spider()
-    await spider.scrap()
+	try {
+		const spider: Spider = new Spider()
+		spider.scrap()
+	}
+	catch (e) {
+		console.log(col.red, "Error:", e)
+		return
+	}
 }
 
 main()
