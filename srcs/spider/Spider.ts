@@ -1,6 +1,6 @@
-import { SpiderCli } from "./cli/SpiderCli";
-import { SpiderScrapper } from "./scrapper/SpiderScrapper";
-import { globalScrappingArrays } from "../utils/types";
+import { SpiderCli } from "./SpiderCli";
+import { SpiderScrapper } from "./SpiderScrapper";
+import { globalScrappingArrays } from "./types/types";
 import * as col from "../utils/colors"
 
 export class Spider {
@@ -10,18 +10,21 @@ export class Spider {
 		imageTypes: ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
 		rawLinks: [],
 		filteredLinks: [],
-		imageLinks: []
+		filteredImageLinks: []
 	}
 
 	constructor() {
 		try { this.cli = new SpiderCli() }
-		catch (e) { throw "CLI: " + e }
+		catch (e) { 
+			console.log(col.red + e)
+			process.exit(1)
+		}
 		console.log(col.green + "Initialising Spider" +
 			(this.cli.opts.recursive ? " - Recursive Mode - Depth:" + this.cli.opts.length : "")
 			+ " - Output Directory: " + this.cli.opts.path
 			+ " - Target: " + this.cli.target)
 		this.arrays.filteredLinks.push(this.cli.target.href)
-		this.scrapper = new SpiderScrapper(this.cli.target, this.cli.opts, 0)
+		this.scrapper = new SpiderScrapper(this.cli.target, this.cli.opts, '1')
 	}
 
 	public async scrap() {

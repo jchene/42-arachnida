@@ -3,28 +3,21 @@ import axios from 'axios'
 import { AxiosResponse } from 'axios'
 import { OptionValues } from 'commander'
 
-import { ScrappedImage } from './ScrappedImage'
-import { globalScrappingArrays } from '../../utils/types'
-import * as col from '../../utils/colors'
+import { SpiderImage } from './SpiderImage'
+import { globalScrappingArrays } from './types/types'
+import * as col from '../utils/colors'
 
 export class SpiderScrapper {
 	private readonly targetURL: URL
 	private readonly opts: OptionValues
-	private readonly inceptionLevel: number
+	private readonly inceptionLevel: string
 	private currentImages: string[] = []
 	private currentLinks: string[] = []
 
-	constructor(targetURL: URL, options: OptionValues, inceptionLevel: number) {
+	constructor(targetURL: URL, options: OptionValues, inceptionLevel: string) {
 		this.targetURL = targetURL
 		this.opts = options
-		this.inceptionLevel = inceptionLevel + 1
-	}
-
-	private printDepth(): string {
-		let depthString = ""
-		for (let i = 0; i < this.inceptionLevel; i++)
-			depthString += "-"
-		return depthString
+		this.inceptionLevel = inceptionLevel
 	}
 
 	private filterLink(rawLink: string): string | undefined {
@@ -57,7 +50,7 @@ export class SpiderScrapper {
 				}
 			}
 		})
-		console.log(col.yellow, `${i} '${beacon}' objects were found`)
+		console.log(col.yellow + `${i} '${beacon}' objects were found`)
 	}
 
 
@@ -75,26 +68,29 @@ export class SpiderScrapper {
 		let responseData: string
 		responseData = await this.fetchPage(this.targetURL.href)
 		const data = cheerio.load(responseData)
-		console.log(col.cyan, "\n", this.printDepth(), "Link:" + this.targetURL.href)
-		this.getObjects(data, 'img', 'src', this.currentImages, arr.imageLinks, arr.rawLinks)
+		console.log(col.cyan + `\n[${this.inceptionLevel}]Link:` + this.targetURL.href)
+		this.getObjects(data, 'img', 'src', this.currentImages, arr.filteredImageLinks, arr.rawLinks)
 		for (let image of this.currentImages) {
 			if (image) {
-				let scrappedImage: ScrappedImage
-				try { scrappedImage = new ScrappedImage(image) }
+				let scrappedImage: SpiderImage
+				try { scrappedImage = new SpiderImage(image) }
 				catch (e) { 
-					console.log(col.red, "Couldn't scrap image", image + ":", e)
+					console.log(col.red + "Couldn't scrap image", image + ":", e)
 					continue
 				}
 				await scrappedImage.download(this.opts.path)
 			}
 		}
+		if (!this.opts.recursive || this.inceptionLevel.split('-').length > this.opts.length - 1)
+			return
 		this.getObjects(data, 'a', 'href', this.currentLinks, arr.filteredLinks, arr.rawLinks)
+		let i = 1;
 		for (let link of this.currentLinks) {
 			if (link) {
-				if (this.inceptionLevel + 1 > this.opts.length) { continue }
-				let childScrapper = new SpiderScrapper(new URL(link), this.opts, this.inceptionLevel)
+				let childScrapper = new SpiderScrapper(new URL(link), this.opts, this.inceptionLevel + `-${i}`)
+				i++
 				try { await childScrapper.scrap(arr) }
-				catch (e) { console.log(col.red, e) }
+				catch (e) { console.log(col.red + e) }
 			}
 		}
 	}

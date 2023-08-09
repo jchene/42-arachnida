@@ -1,9 +1,9 @@
-import * as col from '../../utils/colors'
+import * as col from '../utils/colors'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
 import fs from 'fs'
 
-export class ScrappedImage {
+export class SpiderImage {
 	private readonly extensionWhitelist: string[]
 	public readonly url: URL
 	public readonly name: string
@@ -36,18 +36,18 @@ export class ScrappedImage {
 					try {
 						const writer = response.data.pipe(fs.createWriteStream(`${path}/${this.name}_${id}.${this.ext}`))
 						writer.on('finish', () => {
-							console.log(col.green, "Successfully downloaded image", this.url?.pathname)
+							console.log(col.green + "Successfully downloaded image", this.url?.pathname)
 							resolve(null)
 						});
 						writer.on('error', reject)
 					}
 					catch {
-						console.log(col.red, "Couldn't write image to path:", path)
+						console.log(col.red + "Couldn't write image to path:", path)
 						return
 					}
 				})
 				.catch(e => {
-					console.log(col.red, "Couldn't download image", this.url + ": Get failed")
+					console.log(col.red + "Couldn't download image", this.url + ": Get failed")
 					reject(e);
 				});
 		});

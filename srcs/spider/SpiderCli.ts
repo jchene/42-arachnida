@@ -14,11 +14,7 @@ export class SpiderCli {
 			.parse(process.argv)
 		this.opts = this.command.opts()
 		try { this.target = new URL(this.command.args[0]) }
-		catch { throw "Bad URL" }
-		this.parseOptions()
-	}
-
-	private parseOptions(): void {
+		catch { throw `${this.command.args[0]}: Bad URL` }
 		if (this.opts.recursive === undefined)
 			this.opts.recursive = false
 		if (this.opts.length === undefined)

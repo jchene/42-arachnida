@@ -1,7 +1,8 @@
 import { Scorpion } from "./Scorpion"
 
-function main() {
+async function main() {
 	const scorpion = new Scorpion()
+	await scorpion.extract()
 }
 
 main()

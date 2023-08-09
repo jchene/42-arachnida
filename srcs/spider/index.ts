@@ -7,7 +7,7 @@ async function main() {
 		spider.scrap()
 	}
 	catch (e) {
-		console.log(col.red, "Error:", e)
+		console.log(col.red + "Error:", e)
 		return
 	}
 }
