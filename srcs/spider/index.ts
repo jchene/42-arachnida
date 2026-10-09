@@ -4,7 +4,7 @@ import * as col from '../utils/colors'
 async function main() {
 	try {
 		const spider: Spider = new Spider()
-		spider.scrap()
+		spider.scrape()
 	}
 	catch (e) {
 		console.log(col.red + "Error:" + e + col.reset)

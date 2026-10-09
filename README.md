@@ -9,7 +9,7 @@ npm install
 ```
 ## Spider
 
-Spider can scrap images recursively from an url and download them locally.
+Spider can scrape images recursively from an url and download them locally.
 Supported image types are: `jpg/jpeg`, `png`, `gif`, `bmp`
 
 ### Usage
@@ -29,11 +29,11 @@ npm run start:spider -- [OPTIONS] URL
 ```bash
 npm run start:spider -- http://google.com
 ```
-This will scrap all images from the page http://google.com and store them in './data/'.
+This will scrape all images from the page http://google.com and store them in './data/'.
 ```bash
 npm run start:spider -- -r -l 10 -p dist/images http://google.com
 ```
-This will scrap all images recursively with a depth of 10 from http://google.com and store them in dist/images/.
+This will scrape all images recursively with a depth of 10 from http://google.com and store them in dist/images/.
 ## Scorpion
 
 Scorpion can extract and display metadata from images

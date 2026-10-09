@@ -1,12 +1,12 @@
 import { SpiderCli } from "./SpiderCli";
-import { SpiderScrapper } from "./SpiderScrapper";
-import { globalScrappingArrays } from "./types/types";
+import { SpiderScraper } from "./SpiderScraper";
+import { globalScrapingArrays } from "./types/types";
 import * as col from "../utils/colors"
 
 export class Spider {
 	private readonly cli: SpiderCli
-	private readonly scrapper: SpiderScrapper
-	private readonly arrays: globalScrappingArrays = {
+	private readonly scraper: SpiderScraper
+	private readonly arrays: globalScrapingArrays = {
 		imageTypes: ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
 		rawLinks: [],
 		filteredLinks: [],
@@ -24,11 +24,11 @@ export class Spider {
 			+ " - Output Directory: " + this.cli.opts.path
 			+ " - Target: " + this.cli.target + col.reset)
 		this.arrays.filteredLinks.push(this.cli.target.href)
-		this.scrapper = new SpiderScrapper(this.cli.target, this.cli.opts, '1')
+		this.scraper = new SpiderScraper(this.cli.target, this.cli.opts, '1')
 	}
 
-	public async scrap() {
-		await this.scrapper.scrap(this.arrays)
+	public async scrape() {
+		await this.scraper.scrape(this.arrays)
 		console.log(col.green + "\nSpider finished it's work after browsing",
 			col.yellow + this.arrays.filteredLinks.length,
 			col.green + "different links inside",

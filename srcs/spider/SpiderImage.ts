@@ -10,7 +10,7 @@ export class SpiderImage {
 	public readonly ext: string
 
 	constructor(url: string) {
-		this.extensionWhitelist = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg']
+		this.extensionWhitelist = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
 		try { this.url = new URL(url) }
 		catch { throw "Bad URL" }
 		let tmp = this.url?.pathname.split('/')

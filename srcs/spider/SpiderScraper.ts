@@ -4,10 +4,10 @@ import { AxiosResponse } from 'axios'
 import { OptionValues } from 'commander'
 
 import { SpiderImage } from './SpiderImage'
-import { globalScrappingArrays } from './types/types'
+import { globalScrapingArrays } from './types/types'
 import * as col from '../utils/colors'
 
-export class SpiderScrapper {
+export class SpiderScraper {
 	private readonly targetURL: URL
 	private readonly opts: OptionValues
 	private readonly inceptionLevel: string
@@ -63,7 +63,7 @@ export class SpiderScrapper {
 		return response.data
 	}
 
-	public async scrap(arr: globalScrappingArrays) {
+	public async scrape(arr: globalScrapingArrays) {
 		if (!this.targetURL) return
 		let responseData: string
 		responseData = await this.fetchPage(this.targetURL.href)
@@ -72,13 +72,13 @@ export class SpiderScrapper {
 		this.getObjects(data, 'img', 'src', this.currentImages, arr.filteredImageLinks, arr.rawLinks)
 		for (let image of this.currentImages) {
 			if (image) {
-				let scrappedImage: SpiderImage
-				try { scrappedImage = new SpiderImage(image) }
+				let scrapedImage: SpiderImage
+				try { scrapedImage = new SpiderImage(image) }
 				catch (e) { 
-					console.log(col.red + "Couldn't scrap image" + image + ":" + e + col.reset)
+					console.log(col.red + "Couldn't scrape image" + image + ":" + e + col.reset)
 					continue
 				}
-				await scrappedImage.download(this.opts.path)
+				await scrapedImage.download(this.opts.path)
 			}
 		}
 		if (!this.opts.recursive || this.inceptionLevel.split('-').length > this.opts.length - 1)
@@ -87,9 +87,9 @@ export class SpiderScrapper {
 		let i = 1;
 		for (let link of this.currentLinks) {
 			if (link) {
-				let childScrapper = new SpiderScrapper(new URL(link), this.opts, this.inceptionLevel + `-${i}`)
+				let childScraper = new SpiderScraper(new URL(link), this.opts, this.inceptionLevel + `-${i}`)
 				i++
-				try { await childScrapper.scrap(arr) }
+				try { await childScraper.scrape(arr) }
 				catch (e) { console.log(col.red + e + col.reset) }
 			}
 		}
