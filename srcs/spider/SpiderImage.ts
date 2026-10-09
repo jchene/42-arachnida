@@ -10,7 +10,7 @@ export class SpiderImage {
 	public readonly ext: string
 
 	constructor(url: string) {
-		this.extensionWhitelist = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+		this.extensionWhitelist = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg']
 		try { this.url = new URL(url) }
 		catch { throw "Bad URL" }
 		let tmp = this.url?.pathname.split('/')
@@ -25,6 +25,7 @@ export class SpiderImage {
 	}
 
 	public async download(path: string) {
+		await fs.promises.mkdir(path, { recursive: true })
 		const id = uuidv4();
 		return new Promise((resolve, reject) => {
 			axios({
@@ -36,18 +37,18 @@ export class SpiderImage {
 					try {
 						const writer = response.data.pipe(fs.createWriteStream(`${path}/${this.name}_${id}.${this.ext}`))
 						writer.on('finish', () => {
-							console.log(col.green + "Successfully downloaded image", this.url?.pathname)
+							console.log(col.green + "Successfully downloaded image" + this.url?.pathname + col.reset)
 							resolve(null)
 						});
 						writer.on('error', reject)
 					}
 					catch {
-						console.log(col.red + "Couldn't write image to path:", path)
+						console.log(col.red + "Couldn't write image to path:" + path + col.reset)
 						return
 					}
 				})
 				.catch(e => {
-					console.log(col.red + "Couldn't download image", this.url + ": Get failed")
+					console.log(col.red + "Couldn't download image", this.url + ": Get failed" + col.reset)
 					reject(e);
 				});
 		});

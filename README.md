@@ -23,13 +23,13 @@ npm run start:spider -- [OPTIONS] URL
 
 - `-l`, `--length` used in combination with `--recursive` to manually set the recursive depth (default value is 5)
 
-- `-p`, `--path` used to manually set output directory (default value is 'dist/')
+- `-p`, `--path` used to manually set output directory (default value is './data/')
 
 #### Example
 ```bash
-npm run start:spider -- dist/images http://google.com
+npm run start:spider -- http://google.com
 ```
-This will scrap all images from the page http://google.com and store them in dist/.
+This will scrap all images from the page http://google.com and store them in './data/'.
 ```bash
 npm run start:spider -- -r -l 10 -p dist/images http://google.com
 ```
@@ -46,6 +46,6 @@ npm run start:scorpion -- FILE1 [FILE2] ...
 
 #### Example
 ```bash
-npm run start:scorpion -- dist/*
+npm run start:scorpion -- data/*
 ```
-This will extract and display metadata from all images inside `dist/` directory 
+This example will extract and display metadata from all images inside `data` directory 

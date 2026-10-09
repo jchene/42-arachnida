@@ -3,7 +3,7 @@
     "build": "npx tsc",
     "start:spider": "npm run build && node dist/spider/index.js",
     "start:scorpion": "npm run build && node dist/scorpion/index.js",
-    "clean": "rm -rf dist/*.svg dist/*.png dist/*.jpg dist/*.jpeg dist/*.gif dist/*/*.svg dist/*/*.png dist/*/*.jpg dist/*/*.jpeg dist/*/*.gif"
+    "clean": "rm -rf dist data"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -12,10 +12,9 @@
     "exifr": "^7.1.3",
     "piexifjs": "^1.0.6",
     "typescript": "^5.1.6",
-    "uuid": "^9.0.0"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "@types/cheerio": "^0.22.31",
     "@types/node": "^20.4.5",
     "@types/uuid": "^9.0.2"
   }

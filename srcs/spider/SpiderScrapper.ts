@@ -1,4 +1,4 @@
-import cheerio from 'cheerio'
+import { load, CheerioAPI, Element } from 'cheerio'
 import axios from 'axios'
 import { AxiosResponse } from 'axios'
 import { OptionValues } from 'commander'
@@ -33,9 +33,9 @@ export class SpiderScrapper {
 		else return undefined
 	}
 
-	private getObjects(data: cheerio.Root, beacon: string, attribute: string, currentArray: string[], globalArray: string[], rawArray: string[]) {
+	private getObjects(data: CheerioAPI, beacon: string, attribute: string, currentArray: string[], globalArray: string[], rawArray: string[]) {
 		let i = 0
-		data(beacon).each((index: number, element: cheerio.Element) => {
+		data<Element, string>(beacon).each((index: number, element: Element) => {
 			let object = data(element).attr(attribute)
 			if (object) {
 				if (rawArray.includes(object)) return
@@ -50,7 +50,7 @@ export class SpiderScrapper {
 				}
 			}
 		})
-		console.log(col.yellow + `${i} '${beacon}' objects were found`)
+		console.log(col.yellow + `${i} '${beacon}' objects were found` + col.reset)
 	}
 
 
@@ -58,7 +58,7 @@ export class SpiderScrapper {
 		let response: AxiosResponse<any, any>
 		try { response = await axios.get(url, { validateStatus: (status) => status < 400 }) }
 		catch { throw "Fetch failed at: " + url }
-		if (response.headers['content-type'].includes('application'))
+		if (response.headers['content-type'] && response.headers['content-type'].toString().includes('application'))
 			throw "Downloader detected at: " + url
 		return response.data
 	}
@@ -67,15 +67,15 @@ export class SpiderScrapper {
 		if (!this.targetURL) return
 		let responseData: string
 		responseData = await this.fetchPage(this.targetURL.href)
-		const data = cheerio.load(responseData)
-		console.log(col.cyan + `\n[${this.inceptionLevel}]Link:` + this.targetURL.href)
+		const data = load(responseData)
+		console.log(col.cyan + `\n[${this.inceptionLevel}]Link:` + this.targetURL.href + col.reset)
 		this.getObjects(data, 'img', 'src', this.currentImages, arr.filteredImageLinks, arr.rawLinks)
 		for (let image of this.currentImages) {
 			if (image) {
 				let scrappedImage: SpiderImage
 				try { scrappedImage = new SpiderImage(image) }
 				catch (e) { 
-					console.log(col.red + "Couldn't scrap image", image + ":", e)
+					console.log(col.red + "Couldn't scrap image" + image + ":" + e + col.reset)
 					continue
 				}
 				await scrappedImage.download(this.opts.path)
@@ -90,7 +90,7 @@ export class SpiderScrapper {
 				let childScrapper = new SpiderScrapper(new URL(link), this.opts, this.inceptionLevel + `-${i}`)
 				i++
 				try { await childScrapper.scrap(arr) }
-				catch (e) { console.log(col.red + e) }
+				catch (e) { console.log(col.red + e + col.reset) }
 			}
 		}
 	}

@@ -24,6 +24,6 @@ export class SpiderCli {
 		else if (isNaN(Number(this.opts.length)))
 			throw 'Option \'-l, --length\' require a number as value'
 		if (!this.opts.path)
-			this.opts.path = 'dist'
+			this.opts.path = 'data'
 	}
 }

@@ -16,16 +16,16 @@ export class ScorpionCli {
 		this.args = this.command.args
 		for (let arg of this.args) {
 			if (!fs.existsSync(arg)){
-				console.log(col.red + `${arg}: Bad path`)
+				console.log(col.red + `${arg}: Bad path` + col.reset)
 				continue
 			}
 			if (!fs.lstatSync(arg).isFile()){
-				console.log(col.red + `${arg}: Not a file`)
+				console.log(col.red + `${arg}: Not a file` + col.reset)
 				continue
 			}
 			let split = arg.split('.')
 			if (!split.length || !this.imageTypes.includes(split[split.length - 1])){
-				console.log(col.red + `${arg}: Not an image`)
+				console.log(col.red + `${arg}: Not an image` + col.reset)
 				continue
 			}
 			if (!this.files.includes(arg))

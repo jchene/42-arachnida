@@ -16,13 +16,13 @@ export class Spider {
 	constructor() {
 		try { this.cli = new SpiderCli() }
 		catch (e) { 
-			console.log(col.red + e)
+			console.log(col.red + e + col.reset)
 			process.exit(1)
 		}
 		console.log(col.green + "Initialising Spider" +
 			(this.cli.opts.recursive ? " - Recursive Mode - Depth:" + this.cli.opts.length : "")
 			+ " - Output Directory: " + this.cli.opts.path
-			+ " - Target: " + this.cli.target)
+			+ " - Target: " + this.cli.target + col.reset)
 		this.arrays.filteredLinks.push(this.cli.target.href)
 		this.scrapper = new SpiderScrapper(this.cli.target, this.cli.opts, '1')
 	}
@@ -32,7 +32,7 @@ export class Spider {
 		console.log(col.green + "\nSpider finished it's work after browsing",
 			col.yellow + this.arrays.filteredLinks.length,
 			col.green + "different links inside",
-			col.yellow + this.cli.target.hostname)
+			col.yellow + this.cli.target.hostname + col.reset)
 	}
 
 }
